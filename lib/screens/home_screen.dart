@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_security_testing/screens/emas_bd/api_test_screen.dart';
+import 'package:flutter_security_testing/screens/emas_bd/file_upload.dart';
 import 'package:flutter_security_testing/screens/flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_security_testing/screens/flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -54,6 +56,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context) => FlutterDotEnvExample()));
             },
             child: Text('Flutter Dotenv'),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FileUpload()));
+            },
+            child: Text('EmasBd'),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ApiTestScreen()));
+            },
+            child: Text('Api Test Screen'),
           ),
         ],
       ),

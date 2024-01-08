@@ -1,10 +1,11 @@
-// References:
-// Package name: flutter_secure_storage
-// Package url: https://pub.dev/packages/flutter_secure_storage
-// Version Used here: flutter_secure_storage: ^9.0.0
-
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+/**References:
+Package name: flutter_secure_storage
+Package url: https://pub.dev/packages/flutter_secure_storage
+Version Used here: flutter_secure_storage: ^9.0.0
+*/
 
 class FlutterSecureStorageExample extends StatefulWidget {
   const FlutterSecureStorageExample({Key? key}) : super(key: key);
@@ -14,17 +15,17 @@ class FlutterSecureStorageExample extends StatefulWidget {
 }
 
 class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExample> {
-  String name = 'Zakir Bhai';
+  String name = 'Zakir Bai';
   String email = 'zakir@gmail.com';
-  int phone = 01372798334;
-  bool isWorking = true;
+  int phone = 01734128544;
+  bool isWorking = false;
   List<String> address = [
-    "Permanent Address : Baridhara",
-    "Present Address : Orangebd"
+    "Permanent Address : Barbarian",
+    "Present Address : Orange"
   ];
 
   // Create storage
-  final storage = FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
     await storage.write(key: 'email', value: email);
 
     // Write bool value
-    await storage.write(key: 'isWorking', value: isWorking.toString());
+    await storage.write(key: 'is_working', value: isWorking.toString());
 
     // Write int value
     await storage.write(key: 'phone', value: phone.toString());
@@ -55,92 +56,20 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('This is the example of Flutter Secure Storage'),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: initBuildUi(),
-      ),
-    );
-  }
+  Future<Map<String, dynamic>> readAllStoredData() async {
+    Map<String, dynamic> variables = {};
 
-  Widget initBuildUi() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Show name
-          FutureBuilder(
-            future: storage.read(key: 'name'),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text('Name: ${snapshot.data}');
-              } else {
-                return Text('Loading...');
-              }
-            },
-          ),
-          // Show email
-          FutureBuilder(
-            future: storage.read(key: 'email'),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text('Email: ${snapshot.data}');
-              } else {
-                return Text('Loading...');
-              }
-            },
-          ),
-          // Show isWorking (bool)
-          FutureBuilder(
-            future: storage.read(key: 'isWorking'),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text('Is Working: ${snapshot.data}');
-              } else {
-                return Text('Loading...');
-              }
-            },
-          ),
-          // Show phone (int)
-          FutureBuilder(
-            future: storage.read(key: 'phone'),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text('Phone: ${snapshot.data}');
-              } else {
-                return Text('Loading...');
-              }
-            },
-          ),
-          // Show address list
-          FutureBuilder(
-            future: _readAddress(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                List<String> addresses = snapshot.data as List<String>;
-                return Column(
-                  children: addresses
-                      .map((address) => Text(address))
-                      .toList(),
-                );
-              } else {
-                return Text('Loading...');
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
+    // Read name and email
+    variables['name'] = await storage.read(key: 'name');
+    variables['email'] = await storage.read(key: 'email');
 
+    // Read bool value
+    variables['is_working'] = await storage.read(key: 'is_working');
 
-  Future<List<String>> _readAddress() async {
+    // Read int value
+    variables['phone'] = await storage.read(key: 'phone');
+
+    // Read list of String values
     List<String> addresses = [];
     int index = 0;
     while (true) {
@@ -151,6 +80,63 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
       addresses.add(address);
       index++;
     }
-    return addresses;
+    variables['addresses'] = addresses;
+
+    return variables;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('This is the example of Flutter Secure Storage'),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: initBuildUi(),
+      ),
+    );
+  }
+
+  Widget initBuildUi() {
+    return FutureBuilder(
+      future: readAllStoredData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                ],
+              ),
+          ); // Show loading indicator while data is being fetched
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          Map<String, dynamic> variables = snapshot.data as Map<String, dynamic>;
+
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('Name: ${variables['name']}'),
+                Text('Email: ${variables['email']}'),
+                Text('Is Working: ${variables['is_working']}'),
+                Text('Phone: ${variables['phone']}'),
+                Column(
+                  children: (variables['addresses'] as List<String>)
+                      .map((address) => Text(address))
+                      .toList(),
+                ),
+              ],
+            ),
+          );
+        } else {
+          return const Text('Loading...');
+        }
+      },
+    );
   }
 }
