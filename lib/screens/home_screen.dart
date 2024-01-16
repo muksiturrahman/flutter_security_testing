@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_security_testing/screens/emas_bd/api_test_screen.dart';
+import 'package:flutter_security_testing/screens/emas_bd/dio/api_call_using_dio.dart';
 import 'package:flutter_security_testing/screens/emas_bd/file_upload.dart';
 import 'package:flutter_security_testing/screens/flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_security_testing/screens/flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_security_testing/screens/test_screen2.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -62,10 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FileUpload()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => FileUpload()));
             },
             child: Text('EmasBd'),
           ),
@@ -74,12 +74,38 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ApiTestScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ApiTestScreen()));
             },
             child: Text('Api Test Screen'),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ElevatedButton(
+            onPressed: () {
+             /* Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyWidget(),
+                      ),
+                      );*/
+            },
+            child: Text('Test Screen 2'),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ElevatedButton(
+            onPressed: () {
+               Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ApiCallUsingDio(),
+                      ),
+                      );
+            },
+            child: Text('Call Api Using Dio'),
           ),
         ],
       ),

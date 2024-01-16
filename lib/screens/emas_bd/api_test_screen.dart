@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_security_testing/screens/emas_bd/models/all_classes_model.dart';
 import 'package:flutter_security_testing/screens/emas_bd/models/class_details_model.dart';
+import 'package:flutter_security_testing/screens/emas_bd/models/online_offline_class_model.dart';
 import 'package:flutter_security_testing/screens/emas_bd/models/topic_list_model.dart';
 import 'package:flutter_security_testing/screens/emas_bd/network/school_presenter.dart';
 
@@ -13,9 +15,9 @@ class ApiTestScreen extends StatefulWidget {
 
 class _ApiTestScreenState extends State<ApiTestScreen> {
   List<AllClassesModel> allClasses = [];
+  List<OnlineOfflineClassModel> onlineOfflineClasses = [];
   List<TopicListDatum> topicList = [];
   List<ClassDetailsModel> classDetails = [];
-
 
   @override
   Widget build(BuildContext context) {
@@ -29,21 +31,28 @@ class _ApiTestScreenState extends State<ApiTestScreen> {
                 onPressed: () async{
                   await _callAllClassesApi();
                 },
-                child: Text('All Classes Api'),
+                child: const Text('All Classes Api'),
               ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               ElevatedButton(
                 onPressed: () async{
                   await _callTopicListApi();
                 },
-                child: Text('Topic List Api'),
+                child: const Text('Topic List Api'),
               ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               ElevatedButton(
                 onPressed: () async{
                   await _callClassDetailsApi();
                 },
-                child: Text('Class Details Api'),
+                child: const Text('Class Details Api'),
+              ),
+              const SizedBox(height: 10,),
+              ElevatedButton(
+                onPressed: () async{
+                  await _callOnlineOfflineClassApi();
+                },
+                child: const Text('Online offLine Class Api'),
               ),
             ],
           ),
@@ -61,17 +70,47 @@ class _ApiTestScreenState extends State<ApiTestScreen> {
       if (allClassesInfo is String) {
         //Error Message
       } else {
-        allClassesModel.add(allClassesInfo);
-        allClasses.addAll(allClassesModel);
-
+        // allClassesModel.add(allClassesInfo);
+        allClassesModel.addAll(allClassesInfo);
+        allClasses = allClassesInfo;
         setState(() {
           allClasses;
         });
       }
 
-      print('');
+      if (kDebugMode) {
+        print('');
+      }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> _callOnlineOfflineClassApi() async {
+    try {
+      List<OnlineOfflineClassModel> onlineOfflineClassModel = [];
+
+      var onlineOfflineClassInfo = await initOnlineOfflineInfo(context, "employee", "fatema@teacher", "initial", "joiningUrl", "meetingId", "password", "topicName", "description", "previousTopic");
+
+      if (onlineOfflineClassInfo is String) {
+        //Error Message
+      } else {
+        onlineOfflineClassModel.add(onlineOfflineClassInfo);
+        onlineOfflineClasses.addAll(onlineOfflineClassModel);
+        setState(() {
+          onlineOfflineClasses;
+        });
+      }
+
+      if (kDebugMode) {
+        print('');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -92,9 +131,13 @@ class _ApiTestScreenState extends State<ApiTestScreen> {
         });
       }
 
-      print('');
+      if (kDebugMode) {
+        print('');
+      }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -115,9 +158,13 @@ class _ApiTestScreenState extends State<ApiTestScreen> {
         });
       }
 
-      print('');
+      if (kDebugMode) {
+        print('');
+      }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 }

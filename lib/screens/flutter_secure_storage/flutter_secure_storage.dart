@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /**References:
-Package name: flutter_secure_storage
-Package url: https://pub.dev/packages/flutter_secure_storage
-Version Used here: flutter_secure_storage: ^9.0.0
-*/
+    Package name: flutter_secure_storage
+    Package url: https://pub.dev/packages/flutter_secure_storage
+    Version Used here: flutter_secure_storage: ^9.0.0
+ */
 
 class FlutterSecureStorageExample extends StatefulWidget {
   const FlutterSecureStorageExample({Key? key}) : super(key: key);
@@ -17,7 +17,8 @@ class FlutterSecureStorageExample extends StatefulWidget {
 class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExample> {
   String name = 'Zakir Bai';
   String email = 'zakir@gmail.com';
-  int phone = 01734128544;
+  int phone = 1734128544;
+  int countNumber = 0;
   bool isWorking = false;
   List<String> address = [
     "Permanent Address : Barbarian",
@@ -35,6 +36,12 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
   }
 
   Future<void> initStoreData() async {
+    // Read stored countNumber value
+    String? storedCount = await storage.read(key: 'countNumber');
+    if (storedCount != null) {
+      countNumber = int.parse(storedCount);
+    }
+
     // Write name and email
     await storage.write(key: 'name', value: name);
     await storage.write(key: 'email', value: email);
@@ -69,6 +76,9 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
     // Read int value
     variables['phone'] = await storage.read(key: 'phone');
 
+    // Parse countNumber as int
+    variables['countNumber'] = int.tryParse(await storage.read(key: 'countNumber') ?? '0') ?? 0;
+
     // Read list of String values
     List<String> addresses = [];
     int index = 0;
@@ -89,7 +99,7 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('This is the example of Flutter Secure Storage'),
+        title: const Text('Flutter Secure Storage Example'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -104,13 +114,8 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                ],
-              ),
-          ); // Show loading indicator while data is being fetched
+            child: CircularProgressIndicator(),
+          );
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
@@ -129,6 +134,40 @@ class _FlutterSecureStorageExampleState extends State<FlutterSecureStorageExampl
                   children: (variables['addresses'] as List<String>)
                       .map((address) => Text(address))
                       .toList(),
+                ),
+                SizedBox(height: 100,),
+                Text('Count Number: ${variables['countNumber']}', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          countNumber = variables['countNumber'] + 1;
+                          storage.write(key: 'countNumber', value: countNumber.toString());
+                        });
+                      },
+                      child: Text("+"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          countNumber = variables['countNumber'] - 1;
+                          storage.write(key: 'countNumber', value: countNumber.toString());
+                        });
+                      },
+                      child: Text("-"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          countNumber = 0;
+                          storage.write(key: 'countNumber', value: countNumber.toString());
+                        });
+                      },
+                      child: Text("Reset"),
+                    ),
+                  ],
                 ),
               ],
             ),

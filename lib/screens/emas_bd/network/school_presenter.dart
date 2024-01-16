@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_security_testing/screens/emas_bd/models/all_classes_model.dart';
 import 'package:flutter_security_testing/screens/emas_bd/models/class_details_model.dart';
+import 'package:flutter_security_testing/screens/emas_bd/models/online_offline_class_model.dart';
 import 'package:flutter_security_testing/screens/emas_bd/models/success_message_model.dart';
 import 'package:flutter_security_testing/screens/emas_bd/models/topic_list_model.dart';
 import 'base_client.dart';
@@ -109,8 +110,11 @@ Future<dynamic> initAllClassesInfo(BuildContext context, String userType, String
 
   if (response != null) {
     try {
-      AllClassesModel allClassesModel =
-      AllClassesModel.fromJson(json.decode(response));
+      // AllClassesModel allClassesModel =
+      // AllClassesModel.fromJson(json.decode(response));
+      List<AllClassesModel> allClassesModel = List<AllClassesModel>.from(json
+          .decode(response)
+          .map<AllClassesModel>((dynamic i) => AllClassesModel.fromJson(i)));
 
       return allClassesModel;
     } catch (e) {
@@ -165,6 +169,60 @@ Future<dynamic> initClassDetailsInfo(BuildContext context, String userType, Stri
       return classDetailsModel;
     } catch (e) {
       return initClassDetailsInfo(context, userType, userId, schoolSlug);
+    }
+  } else {
+    return "Server Error";
+  }
+}
+
+Future<dynamic> initOnlineOfflineInfo(BuildContext context, String userType, String userId, String schoolSlug, String? joiningUrl, String? meetingId, String? password, String? topicName, String? description, String? previousTopic) async {
+  String url = SchoolService.onlineOfflineClassUrl;
+
+  Map<String, String> headerMap = {
+    "usertype": userType,
+    "userid": userId,
+    "schoolslug": schoolSlug,
+  };
+
+  Map body = {
+    'class_schedule_id' : "2",
+    'medium' : "2",
+    'previous_material' : "",
+    'date' : "16-09-1999",
+  };
+
+  if(joiningUrl != ""){
+    body['zoom_ur'] = joiningUrl;
+  }
+
+  if(meetingId != ""){
+    body['zoom_id'] = meetingId;
+  }
+  if(password != ""){
+    body['zoom_password'] = password;
+  }
+
+  if(topicName != ""){
+    body['topic'] = topicName;
+  }
+  if(description != ""){
+    body['description'] = description;
+  }
+
+  if(previousTopic != ""){
+    body['tag_previous_topics'] = previousTopic;
+  }
+
+  var response = await BaseClient().initPostWithHeader(url, body, headerMap);
+
+  if (response != null) {
+    try {
+      OnlineOfflineClassModel onlineOfflineClassModel =
+      OnlineOfflineClassModel.fromJson(json.decode(response));
+
+      return onlineOfflineClassModel;
+    } catch (e) {
+      return initTopicListInfo(context, userType, userId, schoolSlug);
     }
   } else {
     return "Server Error";

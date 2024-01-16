@@ -4,4 +4,5 @@ class SchoolService {
   static const allClassesUrl = "${baseUrl}mySections";
   static const topicListUrl = "${baseUrl}class_materials/teacher-topic-list";
   static const classDetailsUrl = "${baseUrl}class-details/2";
+  static const onlineOfflineClassUrl = "${baseUrl}class-details/add/2";
 }
