@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_security_testing/screens/emas_bd/ads/native_ads/native_ads_page.dart';
 import 'package:flutter_security_testing/screens/emas_bd/api_test_screen.dart';
 import 'package:flutter_security_testing/screens/emas_bd/dio/api_call_using_dio.dart';
 import 'package:flutter_security_testing/screens/emas_bd/file_upload.dart';
+import 'package:flutter_security_testing/screens/emas_bd/hive/hive_implementation.dart';
 import 'package:flutter_security_testing/screens/flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_security_testing/screens/flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_security_testing/screens/test_screen2.dart';
@@ -106,6 +108,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
             },
             child: Text('Call Api Using Dio'),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HiveTest(),
+                ),
+              );
+            },
+            child: Text('Hive Implementation'),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NativeAdsPage(),
+                ),
+              );
+            },
+            child: Text('Google Ads'),
           ),
         ],
       ),

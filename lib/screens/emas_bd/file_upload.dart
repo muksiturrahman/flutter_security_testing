@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_security_testing/screens/emas_bd/network/school_presenter.dart';
@@ -14,15 +15,25 @@ class FileUpload extends StatefulWidget {
 }
 
 class _FileUploadState extends State<FileUpload> {
-  String? selectedFilePath;
-  int? selectedFileSize;
-  bool uploading = false;
-  String uploadStatus = "uploading...";
-  bool uploadCompleted = false;
   String lectureQuery = "";
   String textbookQuery = "";
-  FilePickerResult? result;
-  double uploadProgress = 0.0;
+
+  late Dio dio;
+  late String userType;
+  late String userId;
+  late String schoolSlug;
+  late File? selectedFile;
+  double progress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    dio = Dio();
+    userType = "employee";
+    userId = "fatema@teacher";
+    schoolSlug = "initial";
+    selectedFile = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +44,7 @@ class _FileUploadState extends State<FileUpload> {
           child: Container(
             height: 500,
             width: double.infinity,
-            margin: EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
@@ -43,8 +54,8 @@ class _FileUploadState extends State<FileUpload> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Files", style: TextStyle(color: Color(0xff484848))),
-                  SizedBox(height: 10),
+                  const Text("Files", style: TextStyle(color: Color(0xff484848))),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -53,7 +64,7 @@ class _FileUploadState extends State<FileUpload> {
                         width: MediaQuery.of(context).size.width / 1.3,
                         child: Center(
                           child: TextField(
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: "Add Textbook Links",
                               hintStyle: TextStyle(
                                 color: Color(0xff959595),
@@ -79,13 +90,13 @@ class _FileUploadState extends State<FileUpload> {
                           if(textbookQuery.isNotEmpty){
                             _callSchoolMaterialsApi(textbookQuery, "", "");
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text("Textbook link added successfully"),
                               ),
                             );
                           }else{
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text("Textbook link is empty. Please add Textbook link first"),
                               ),
                             );
@@ -95,7 +106,7 @@ class _FileUploadState extends State<FileUpload> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -104,7 +115,7 @@ class _FileUploadState extends State<FileUpload> {
                         width: MediaQuery.of(context).size.width / 1.3,
                         child: Center(
                           child: TextField(
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: "Add Lecture Links",
                               hintStyle: TextStyle(
                                 color: Color(0xff959595),
@@ -130,13 +141,13 @@ class _FileUploadState extends State<FileUpload> {
                           if(lectureQuery.isNotEmpty){
                             _callSchoolMaterialsApi("", lectureQuery, "");
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text("Lecture link added Successfully."),
                               ),
                             );
                           }else{
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text("Lecture link is empty. Please add lecture link first"),
                               ),
                             );
@@ -146,48 +157,18 @@ class _FileUploadState extends State<FileUpload> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
-                  Text("Add Notes", style: TextStyle(color: Color(0xff484848))),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 20),
+                  const Text("Add Notes", style: TextStyle(color: Color(0xff484848))),
+                  const SizedBox(height: 10),
                   InkWell(
-                    onTap: () async {
-                      result = await FilePicker.platform
-                          .pickFiles(type: FileType.any);
-
-                      if (result != null) {
-                        File selectedFile = File(result!.files.single.path!);
-                        setState(() {
-                          selectedFilePath = selectedFile.path;
-                          selectedFileSize = selectedFile.lengthSync();
-                        });
-                      }
-                      setState(() {
-                        uploading = true;
-                        uploadCompleted = false;
-                        uploadStatus = "uploading...";
-                      });
-
-                      // Simulate file upload process (replace with actual logic)
-                      await Future.delayed(Duration(seconds: 3));
-
-                      setState(() {
-                        uploading = false;
-                        uploadCompleted = true;
-                        uploadStatus = "uploaded";
-                      });
-                      if (result != null && result!.files.isNotEmpty) {
-                        File selectedFile = File(result!.files.single.path!);
-
-                        await _callFileUploadApi(selectedFile);
-                      }
-                    },
+                    onTap: pickFile,
                     child: Container(
                       height: 40,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          border: Border.all(width: 1, color: Color(0xff8054DC)),
+                          border: Border.all(width: 1, color: const Color(0xff8054DC)),
                           borderRadius: BorderRadius.circular(6)),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           "+ Upload New",
                           style: TextStyle(color: Color(0xff8054DC), fontSize: 14),
@@ -195,10 +176,10 @@ class _FileUploadState extends State<FileUpload> {
                       ),
                     ),
                   ),
-                  result != null ?
+                  selectedFile != null?
                   Container(
                     decoration: BoxDecoration(
-                      color: Color(0xffFBFBFB),
+                      color: const Color(0xffFBFBFB),
                       borderRadius:
                       BorderRadius.circular(6),
                     ),
@@ -207,14 +188,15 @@ class _FileUploadState extends State<FileUpload> {
                       child: Column(
                         children: [
                           // Custom AppBar
-                          SizedBox(height: 20,),
+                          const SizedBox(height: 20,),
                           Row(
                             crossAxisAlignment:
                             CrossAxisAlignment.end,
                             children: [
                               Image.asset(
-                                  "assets/icons/pdf.png"),
-                              SizedBox(
+                                  "assets/icons/pdf.png",
+                              ),
+                              const SizedBox(
                                 width: 10,
                               ),
                               Column(
@@ -227,26 +209,22 @@ class _FileUploadState extends State<FileUpload> {
                                     MainAxisAlignment
                                         .spaceBetween,
                                     children: [
-                                      Container(
-                                        width: MediaQuery.of(context).size.width/ 1.7,
+                                      SizedBox(
+                                        width: MediaQuery.of(context).size.width / 1.7,
                                         child: Text(
-                                          path.basename(
-                                              selectedFilePath ??
-                                                  ""),
-                                          overflow:
-                                          TextOverflow
-                                              .ellipsis,
+                                          path.basename(selectedFile!.path),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      SizedBox(
+
+                                      const SizedBox(
                                         width: 15,
                                       ),
                                       InkWell(
                                         onTap: (){
                                           setState(() {
-                                            result = null;
+                                            selectedFile = null;
                                           });
-                                          print(result);
                                         },
                                         child: Image.asset(
                                           "assets/icons/cross.png",
@@ -254,36 +232,33 @@ class _FileUploadState extends State<FileUpload> {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 5,
                                   ),
                                   Row(
                                     children: [
                                       Text(
-                                        formatFileSize(
-                                            selectedFileSize ??
-                                                0),
-                                        style: TextStyle(
-                                            color: Color(
-                                                0xffA9ACB4),
-                                            fontSize:
-                                            10),
+                                        formatFileSize(selectedFile!.lengthSync()),
+                                        style: const TextStyle(
+                                          color: Color(0xffA9ACB4),
+                                          fontSize: 10,
+                                        ),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       Row(
                                         children: [
-                                          uploadCompleted?
+                                          progress * 100 == 100 ?
                                           Image.asset("assets/icons/tick.png"):
                                           Image.asset(
                                               "assets/icons/loading.png"),
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 5,
                                           ),
                                           Text(
-                                            uploadStatus,
-                                            style: TextStyle(
+                                            progress * 100 == 100 ? "Uploaded" : "Uploading",
+                                            style: const TextStyle(
                                                 fontSize:
                                                 12),
                                           )
@@ -295,8 +270,7 @@ class _FileUploadState extends State<FileUpload> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          if (uploading || uploadCompleted)
+                          const SizedBox(height: 10),
                             Container(
                               width: double.infinity,
                               decoration: BoxDecoration(
@@ -304,18 +278,19 @@ class _FileUploadState extends State<FileUpload> {
                                 BorderRadius.circular(10),
                               ),
                               child: LinearProgressIndicator(
+                                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xffD59A01)),
                                 backgroundColor: Colors.grey,
-                                color: Color(0xffD59A01),
-                                value: uploadCompleted ? 1.0 : 0.5,
+                                // color: ,
+                                value: progress,
                                 minHeight: 4.0,
                               ),
                             )
-                          else
-                            Container(),
                         ],
                       ),
                     ),
                   ):Container(),
+                  const SizedBox(height: 10),
+                  Text("Progress: ${(progress * 100).toStringAsFixed(2)}%"),
                 ],
               ),
             ),
@@ -351,29 +326,63 @@ class _FileUploadState extends State<FileUpload> {
 
       }
 
-      print('');
+      // print('');
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 
-  Future<void> _callFileUploadApi(File? notePdf) async {
+  Future<void> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      setState(() {
+        selectedFile = File(result.files.single.path!);
+      });
+      if(selectedFile != null){
+        await postApiCall();
+      }else{
+        // print("File is Empty");
+      }
+    }
+
+  }
+
+  Future<void> postApiCall() async {
     try {
-      List<ResponseMessageModel> responseMessageModel = [];
-
-
-      var classMaterialsInfo = await initSetUpStudentBio(context, notePdf, "employee", "fatema@teacher", "initial", path.basename(selectedFilePath ?? ""));
-
-      if (classMaterialsInfo is String) {
-        //Error Message
-      } else {
-        responseMessageModel.add(classMaterialsInfo);
-
+      if (selectedFile == null) {
+        // Handle no file selected
+        return;
       }
 
-      print('');
-    } catch (e) {
-      print(e);
+      FormData formData = FormData.fromMap({
+        'usertype': userType,
+        'userid': userId,
+        'schoolslug': schoolSlug,
+        'file': await MultipartFile.fromFile(selectedFile!.path),
+      });
+
+      await dio.post(
+        'https://initial.emasbd.com/api/college/employeepanel/class_materials/1',
+        data: formData,
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: 'multipart/form-data',
+          },
+        ),
+        onSendProgress: (int sent, int total) {
+          setState(() {
+            progress = total > 0 ? sent / total.toDouble() : 0.0;
+          });
+        },
+
+      );
+
+      // print("Upload Complete");
+      // Handle the response here
+    } catch (error) {
+      // print(error.toString());
+      // Handle errors here
     }
   }
 }
